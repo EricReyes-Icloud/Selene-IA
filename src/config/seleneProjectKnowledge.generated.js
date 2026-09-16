@@ -1,5 +1,5 @@
 export const GENERATED_PROJECT_KNOWLEDGE = {
-  "generatedAt": "2026-04-06T21:10:37.786Z",
+  "generatedAt": "2026-09-16T21:12:48.553Z",
   "detectedRoutes": [
     "/ -> HomePage",
     "/contact -> ContactPage",

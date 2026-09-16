@@ -1,4 +1,4 @@
-import { GENERATED_PROJECT_KNOWLEDGE } from './seleneProjectKnowledge.generated';
+import { GENERATED_PROJECT_KNOWLEDGE } from './seleneProjectKnowledge.generated.js';
 
 export const SELENE_PROJECT_KNOWLEDGE = {
   identity: {
