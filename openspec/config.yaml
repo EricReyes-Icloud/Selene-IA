@@ -1,0 +1,37 @@
+schema: spec-driven
+
+context: |
+  Project: Selene-IA (Monolith Studio)
+  Tech stack: Vanilla JS (ES modules) + Vite 7.2.4 + TailwindCSS 3.4.17
+  Dependencies: @google/generative-ai ^0.24.1, firebase ^12.6.0
+  Architecture: SPA sin framework; backend Node+Express en construcción (F0/F1)
+  Testing: no hay test runner detectado todavia (strict_tdd: false)
+  Style: JavaScript puro ES modules, componentes con una sola responsabilidad
+  Artifacts/documentacion: espanol neutro profesional; tecnicos generados en ingles
+  Plan: F0 estabilizacion (tickets Jira deuda tecnica) -> F1 servidor minimo -> F2 nucleo + pruebas -> F3 capacidades asistente -> F4 nivel empresa
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+    - Reference the Jira ticket id in each task group
+  apply:
+    guidelines:
+      - Follow existing code patterns
+      - Preserve GeminiService public API (startChat/sendMessage/generateTitle) to avoid touching ChatArea.js
+    tdd: false
+    test_command: ""
+  verify:
+    test_command: ""
+    build_command: "npm run build"
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas
