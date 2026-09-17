@@ -8,7 +8,7 @@ import { buildSystemInstruction } from "../src/config/systemInstruction.js";
 
 // --- Config ---
 const PORT = 3001;
-const MODEL_PRIORITY = ["gemini-2.5-flash-lite", "gemini-2.5-flash"];
+const MODEL_PRIORITY = ["gemini-3.5-flash-lite", "gemini-3.6-flash"];
 const CORS_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"];
 
 const __filename = fileURLToPath(import.meta.url);
