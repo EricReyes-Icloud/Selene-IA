@@ -1,5 +1,5 @@
 export const GENERATED_PROJECT_KNOWLEDGE = {
-  "generatedAt": "2026-04-06T21:10:37.786Z",
+  "generatedAt": "2026-09-17T20:17:21.421Z",
   "detectedRoutes": [
     "/ -> HomePage",
     "/contact -> ContactPage",
@@ -21,6 +21,7 @@ export const GENERATED_PROJECT_KNOWLEDGE = {
     "src/components/UpdateBanner.js"
   ],
   "serviceFiles": [
+    "src/services/api.js",
     "src/services/auth.js",
     "src/services/gemini.js",
     "src/services/history.js",
@@ -36,7 +37,6 @@ export const GENERATED_PROJECT_KNOWLEDGE = {
     "Cloud Firestore integration",
     "Firebase Authentication integration",
     "Google AdSense integration",
-    "Google Gemini API integration",
     "Google Sign-In provider"
   ],
   "detectedFeatures": [
