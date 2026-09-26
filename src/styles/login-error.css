@@ -1,0 +1,70 @@
+/*
+ * Login error surface (see renderLoginError in src/main.js).
+ *
+ * Statically imported on purpose: this surface renders in the app-only boot
+ * path (persisted session + hard reload + Firestore failure), where the
+ * landing stylesheet has never been loaded. It therefore cannot depend on
+ * Tailwind utilities or on any other lazily loaded chunk.
+ *
+ * Tokens come from src/style.css, which is always in the static import graph.
+ */
+
+.login-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 100%;
+    padding: 1.5rem;
+    text-align: center;
+    /* body is overflow:hidden, so scroll here instead of clipping the surface */
+    overflow-y: auto;
+}
+
+.login-error__title {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.login-error__message {
+    margin: 0 0 1.5rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.login-error__retry {
+    /* No Tailwind preflight is present here, so the browser button defaults
+       (system font, border, buttonface background) must be reset by hand. */
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    appearance: none;
+    border: 0;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    background-color: var(--accent-color);
+    color: var(--bg-color);
+    transition: opacity 0.15s ease;
+}
+
+.login-error__retry:hover {
+    opacity: 0.9;
+}
+
+.login-error__retry:active {
+    opacity: 0.8;
+}
+
+.login-error__retry:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .login-error__retry {
+        transition: none;
+    }
+}
