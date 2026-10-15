@@ -21,6 +21,7 @@ import {
     addDoc,
     collection,
     deleteDoc,
+    deleteField,
     doc,
     getDoc,
     serverTimestamp,
@@ -193,6 +194,113 @@ describe('users/{uid} - updating the own profile', () => {
             updateDoc(doc(db, 'users', OWNER_UID), {
                 preferredName: 'Eric',
                 updatedAt: new Date('2000-01-01T00:00:00Z'),
+            })
+        );
+    });
+});
+
+/**
+ * Bypass attempts: each test tries a different way to reach a protected field,
+ * instead of restating the same denied write in a different spelling.
+ */
+describe('users/{uid} - bypass attempts', () => {
+    beforeEach(async () => {
+        await seedCompletedProfile();
+        // Give the profile a real protected field to try to steal or drop.
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+            await updateDoc(doc(context.firestore(), 'users', OWNER_UID), {
+                role: 'member',
+            });
+        });
+    });
+
+    test('rejects setDoc with merge, the write the profile creation path uses', async () => {
+        const db = testEnv.authenticatedContext(OWNER_UID, { email: OWNER_EMAIL }).firestore();
+
+        await assertFails(
+            setDoc(
+                doc(db, 'users', OWNER_UID),
+                { role: 'admin', preferredName: 'Eric' },
+                { merge: true }
+            )
+        );
+    });
+
+    test('rejects removing a protected field with deleteField', async () => {
+        const db = testEnv.authenticatedContext(OWNER_UID, { email: OWNER_EMAIL }).firestore();
+
+        await assertFails(
+            updateDoc(doc(db, 'users', OWNER_UID), {
+                role: deleteField(),
+                updatedAt: serverTimestamp(),
+            })
+        );
+    });
+
+    test('treats rewriting a protected field with its current value as a no-op', async () => {
+        const db = testEnv.authenticatedContext(OWNER_UID, { email: OWNER_EMAIL }).firestore();
+
+        // `diff().affectedKeys()` reports only keys whose value actually changed,
+        // so resending the same value is not a modification. Documented here so
+        // it is not mistaken for a hole later: the value cannot move.
+        await assertSucceeds(
+            updateDoc(doc(db, 'users', OWNER_UID), {
+                role: 'member',
+                updatedAt: serverTimestamp(),
+            })
+        );
+
+        let stored;
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+            stored = await getDoc(doc(context.firestore(), 'users', OWNER_UID));
+        });
+
+        if (stored.data().role !== 'member') {
+            throw new Error(`protected field moved: role=${JSON.stringify(stored.data().role)}`);
+        }
+    });
+
+    test('rejects changing the profile email', async () => {
+        const db = testEnv.authenticatedContext(OWNER_UID, { email: OWNER_EMAIL }).firestore();
+
+        await assertFails(
+            updateDoc(doc(db, 'users', OWNER_UID), {
+                email: 'attacker@selene.test',
+                updatedAt: serverTimestamp(),
+            })
+        );
+    });
+
+    test('rejects an update that smuggles a protected field inside an allowed one', async () => {
+        const db = testEnv.authenticatedContext(OWNER_UID, { email: OWNER_EMAIL }).firestore();
+
+        // `preferredName` is writable, so this write is accepted; the assertion
+        // is that it cannot plant a top-level `role` field.
+        await assertSucceeds(
+            updateDoc(doc(db, 'users', OWNER_UID), {
+                preferredName: { role: 'admin' },
+                updatedAt: serverTimestamp(),
+            })
+        );
+
+        let stored;
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+            stored = await getDoc(doc(context.firestore(), 'users', OWNER_UID));
+        });
+
+        if (stored.data().role !== 'member') {
+            throw new Error(`escalation succeeded: role=${JSON.stringify(stored.data().role)}`);
+        }
+    });
+
+    test('rejects a chat message written into another user profile', async () => {
+        const db = testEnv.authenticatedContext(OTHER_UID, { email: 'other@selene.test' }).firestore();
+
+        await assertFails(
+            addDoc(collection(db, 'users', OWNER_UID, 'chats', 'chat-1', 'messages'), {
+                text: 'Injected',
+                role: 'user',
+                timestamp: serverTimestamp(),
             })
         );
     });
